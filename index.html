@@ -36,13 +36,13 @@
             <div class="collapse navbar-collapse" id="navbarColor01">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#overview">Overview</a>
+                        <a class="nav-link" href="#overview">Overview&nbsp&nbsp&nbsp|</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#security-flaws">Discovered Security Flaws</a>
+                        <a class="nav-link" href="#security-flaws">Discovered Security Flaws&nbsp&nbsp&nbsp|</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#mutation-operators">Mutation Operators</a>
+                        <a class="nav-link" href="#mutation-operators">Mutation Operators & Schemes&nbsp&nbsp&nbsp|</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#data">Code and Data</a>
@@ -54,8 +54,7 @@
         <main class="container" role="main" id="overview">
             <p>&nbsp</p>
             <h2 align="center">Mutation Based Soundness Evaluation Of Security Focused Static Analysis Tools For Android Apps</h2>
-            <h3 align="center">Richard Bonett, Kaushal Kafle, Kevin Moran, Adwait Nadkarni, Denys
-                Poshyvanyk</h3>
+            <h3 align="center"><a href="http://www.cs.wm.edu/~rfbonett/">Richard Bonett</a>, Kaushal Kafle, <a href="http://www.kpmoran.com">Kevin Moran</a>, <a href="http://www.adwaitnadkarni.com">Adwait Nadkarni</a>, <a href="http://www.cs.wm.edu/~denys/index.html">Denys Poshyvanyk</a></h3>
             <p>&nbsp</p>
             <h4>Overview</h4>
             <p>Mobile application security has been one of the major areas of security research in the last decade. Numerous application analysis tools have been proposed in response to malicious, curious, or vulnerable apps. However, existing tools, and specifically, static analysis tools, trade soundness of the analysis for precision and performance, and are hence soundy. Unfortunately, the specific unsound choices or flaws in the design of these tools are often not known or well-documented, leading to a mis- placed confidence among researchers, developers, and users. This paper proposes the Mutation-based soundness evaluation (μSE) framework, which sys- tematically evaluates Android static analysis tools to discover, document, and fix, flaws, by leverag- ing the well-founded practice of mutation analysis. We implement μSE as a semi-automated framework, and apply it to a set of prominent Android static analysis tools that detect private data leaks in apps. As the result of an in-depth analysis of one of the major tools, we discover 13 undocumented flaws. More importantly, we discover that all 13 flaws propagate to tools that inherit the flawed tool. We successfully fix one of the flaws in cooperation with the tool developers. Our results motivate the urgent need for systematic discovery and documentation of unsound choices in soundy tools, and demonstrate the opportunities in leveraging mutation testing in achieving this goal.</p>
@@ -456,7 +455,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 <hr>
 <main class="container" role="main" id="mutation-operators">
             <p>&nbsp</p>
-            <h2 align="center">Mutation Operators</h2>
+            <h2 align="center">Mutation Operators & Schemes</h2>
             <p>Here we provide descriptions of the security mutation operator and mutation schemes implemented within μSE. Please, click on a mutation operator or scheme for more details.</p>
 
     <div class="panel panel-default">
