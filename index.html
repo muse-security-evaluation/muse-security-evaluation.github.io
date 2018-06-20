@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Muse Security Evaluation</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+        <style>
+            li.L0, li.L1, li.L2, li.L3,
+            li.L5, li.L6, li.L7, li.L8 {
+                list-style-type: decimal !important;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <a class="navbar-brand" href="#">Project Muse</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#security-flaws">Discovered Security Flaws</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#mutation-operators">Mutation Operators</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#data">Code and Data</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        
+        <main class="container" role="main" id="overview">
+            <p>&nbsp</p>
+            <h2 align="center">Mutation Based Soundness Evaluation Of Security Focused Static Analysis Tools For Android Apps</h2>
+            <h3 align="center">Richard Bonett, Kaushal Kafle, Kevin Moran, Adwait Nadkarni, Denys
+                Poshyvanyk</h3>
+            <p>&nbsp</p>
+            <h4>Overview</h4>
+            <p>Mobile application security has been one of the major areas of security research in the last decade. Numerous application analysis tools have been proposed in response to malicious, curious, or vulnerable apps. However, existing tools, and specifically, static analysis tools, trade soundness of the analysis for precision and performance, and are hence soundy. Unfortunately, the specific unsound choices or flaws in the design of these tools are often not known or well-documented, leading to a mis- placed confidence among researchers, developers, and users. This paper proposes the Mutation-based soundness evaluation (μSE) framework, which sys- tematically evaluates Android static analysis tools to discover, document, and fix, flaws, by leverag- ing the well-founded practice of mutation analysis. We implement μSE as a semi-automated framework, and apply it to a set of prominent Android static analysis tools that detect private data leaks in apps. As the result of an in-depth analysis of one of the major tools, we discover 13 undocumented flaws. More importantly, we discover that all 13 flaws propagate to tools that inherit the flawed tool. We successfully fix one of the flaws in cooperation with the tool developers. Our results motivate the urgent need for systematic discovery and documentation of unsound choices in soundy tools, and demonstrate the opportunities in leveraging mutation testing in achieving this goal.</p>
+
+
+        </main>
+<hr>
+        <main class="container" role="main" id="security-flaws">
+            <p>&nbsp</p>
+            <h2 align="center">Discovered Security Flaws</h2>
+            <p>Here we provide the list of all the security vulnerabilities that were discovered using μSE. Please, click on a vulnerability for more details.</p>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Discovered Security Vulnerabilities</h4>
+                </div>
+                <div class="panel-body">
+                    <a href="#demo1" class="list-group-item" data-toggle="collapse">RunOnUIThread</a>
+                    <div id="demo1" class="panel collapse">
+                        <div class="panel-body">
+                            <p>
+                            <h4>Description:</h4> Android Activities have access to the Activity.runOnUiThread() method, which accepts Runnables and executes their run() method on the UI thread. This example submits a Runnable containing a simple data leak within its run() method to the runOnUiThread() method. 
+                            </p>
+                        <p>
+                        <h4>Code Example:</h4>
+                        <pre class="prettyprint linenums:1"> 
+    runOnUiThread(new Runnable() {
+    @Override
+    public void run() {
+        String dataLeak = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+        android.util.Log.d("leak-1", dataLeak);
+    }
+});
+</pre>
+                        </p>
+                </div>
+            </div>
+            <a href="#demo2" class="list-group-item" data-toggle="collapse">ButtonOnClickToDialogOnClick</a>
+            <div id="demo2" class="panel collapse">
+                <div class="panel-body">
+                    <p>
+                    <h4>Description:</h4> This snippet creates an AlertDialog with a listener that will execute onClick() when the user selects an item from the dialog’s list. The onClick() callback contains a data leak. This code is placed within a function registered as a Button’s callback in an XML layout file. Data is leaked when the user clicks the Button and then clicks an item in the AlertDialog’s list.
+                    </p>
+                <p>
+                <h4>Code Example:</h4>
+                <pre class="prettyprint linenums:1">     
+    public void leakData(View view) {
+    CharSequence[] items = {"item1", "item2", "item3"};
+    new AlertDialog.Builder(this).setTitle("example")
+            .setCancelable(true)
+            .setItems(items, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int i) {
+                    String dataLeak = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+                    android.util.Log.d("leak-1", dataLeak);
+                }
+            })
+            .create()
+            .show();
+}
+</pre>
+                <h5>Mutated Xml</h5><pre class="prettyprint linenums:1">     
+    &lt;Button
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:onClick="leakData" /&gt;
+</pre>
+                </p>
+            </div>
+        </div>
+    <a href="#demo3" class="list-group-item" data-toggle="collapse">DialogFragmentShow</a>
+    <div id="demo3" class="panel collapse">
+        <div class="panel-body">
+            <p>
+            <h4>Description:</h4> A DialogFragment contains a leak within its onCreateDialog() callback, which is called when the dialog is instantiated via DialogFragment.show().
+            </p>
+        <p>
+        <h4>Code Example:</h4>
+        <pre class="prettyprint linenums:1">     
+   @Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    DialogFragment example = new ExampleDialogFragment();
+    example.show(getFragmentManager().beginTransaction(), "ExampleDialog");
+}
+
+public static class ExampleDialogFragment extends DialogFragment {
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        String dataLeak = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+        android.util.Log.d("leak-1", dataLeak);
+        return new AlertDialog.Builder(getActivity()).setTitle("example")
+                .create();
+    }
+}
+</pre>
+        </p>
+    </div>
+</div>
+<a href="#demo4" class="list-group-item" data-toggle="collapse">NavigationView</a>
+<div id="demo4" class="panel collapse">
+    <div class="panel-body">
+        <p>
+        <h4>Description:</h4> An Activity implementing NavigationView.OnNavigationItemSelectedListener has an additional lifecycle callback onNavigationItemSelected() which is called when the user clicks on any item in the navigation menu. This example has a simple data leak within that lifecycle callback. 
+        </p>
+    <p>
+    <h4>Code Example:</h4>
+    <pre class="prettyprint linenums:1">     
+  public class MainActivity extends Activity implements NavigationView.OnNavigationItemSelectedListener {
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        String dataLeak = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+        android.util.Log.d("leak-1", dataLeak);
+        return false;
+    }
+}
+</pre>
+    </p>
+</div>
+</div>
+<a href="#demo5" class="list-group-item" data-toggle="collapse">ExecutorService</a>
+<div id="demo5" class="panel collapse">
+    <div class="panel-body">
+        <p>
+        <h4>Description:</h4> An ExecutorService manages threads, accepting Runnables and executing their run() methods in an available thread. In this sample, a simple data leak is contained within a Runnable passed to an ExecutorService that manages a single thread.
+        </p>
+    <p>
+    <h4>Code Example:</h4>
+    <pre class="prettyprint linenums:1">     
+  ExecutorService service = Executors.newSingleThreadExecutor();
+service.submit(new Runnable() {
+    @Override
+    public void run() {
+        String dataLeak = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+        android.util.Log.d("leak-1", dataLeak);
+    }
+});
+</pre>
+    </p>
+</div>
+</div>
+<a href="#demo6" class="list-group-item" data-toggle="collapse">PhoneStateListener</a>
+<div id="demo6" class="panel collapse">
+    <div class="panel-body">
+        <p>
+        <h4>Description:</h4> A data leak is placed within a PhoneStateListener’s onDataConnectionStateChanged() callback, which is called when the device’s data connection state changes, such as when the device loses or regains connection to the internet.
+        </p>
+    <p>
+    <h4>Code Example:</h4>
+    <pre class="prettyprint linenums:1">     
+  @Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    TelephonyManager manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+    manager.listen(new PhoneListener(), PhoneStateListener.LISTEN_CALL_STATE);
+}
+
+private class PhoneListener extends PhoneStateListener {
+    @Override
+    public void onDataConnectionStateChanged(int state) {
+        String dataLeak = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+        android.util.Log.d("leak-1", dataLeak);
+    }
+}
+</pre>
+    </p>
+</div>
+</div>
+<a href="#demo7" class="list-group-item" data-toggle="collapse">BroadcastReceiver</a>
+<div id="demo7" class="panel collapse">
+    <div class="panel-body">
+        <p>
+        <h4>Description:</h4> Android BroadcastReceivers execute the onReceive() callback when an Intent matching the receiver’s IntentFilter is broadcast to the system. In this sample, a BroadcastReceiver dynamically registers another BroadcastReceiver in its onReceive() callback. The second receiver’s onReceive() callback contains a simple data leak.
+        </p>
+    <p>
+    <h4>Code Example:</h4>
+    <pre class="prettyprint linenums:1">     
+  BroadcastReceiver receiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String dataLeak = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+                android.util.Log.d("leak-1", dataLeak);
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.SEND");
+        registerReceiver(receiver, filter);
+    }
+};
+IntentFilter filter = new IntentFilter();
+filter.addAction("android.intent.action.SEND");
+registerReceiver(receiver, filter);
+</pre>
+    </p>
+</div>
+</div>
+<a href="#demo8" class="list-group-item" data-toggle="collapse">LocationListenerTaint</a>
+<div id="demo8" class="panel collapse">
+    <div class="panel-body">
+        <p>
+        <h4>Description:</h4> A LocationListener allows Android applications to react to changes in the user’s location. In this example, a LocationListener is registered to save a data source when the location provider’s status changes, such as when the user loses or regains cellular service, and leak the data when the user moves and changes location.
+        </p>
+    <p>
+    <h4>Code Example:</h4>
+    <pre class="prettyprint linenums:1">     
+ @Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+}
+
+private LocationListener locationListener = new LocationListener() {
+    private String dataLeak = "";
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.d("leak", dataLeak);
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        dataLeak = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+    }
+};
+</pre>
+    </p>
+</div>
+</div>
+<a href="#demo9" class="list-group-item" data-toggle="collapse">NSDManager</a>
+<div id="demo9" class="panel collapse">
+    <div class="panel-body">
+        <p>
+        <h4>Description:</h4> An NsdManager.DiscoveryListener can be used to discover network services. In this example, a data leak source is placed within the onDiscoveryStarted() callback of the DiscoveryListener, which is called when the listener begins searching for services. Sinks are placed within the callbacks of a ResolveListener for either successful service resolution or failure, instantiated within the onServiceFound() callback of the DiscoveryListener.
+        </p>
+    <p>
+    <h4>Code Example:</h4>
+    <pre class="prettyprint linenums:1">     
+ final NsdManager nsdManager = (NsdManager)this.getSystemService(Context.NSD_SERVICE);
+NsdManager.DiscoveryListener listener = new NsdManager.DiscoveryListener() {
+    String dataLeak = "";
+
+    @Override
+    public void onDiscoveryStarted(String serviceType) {
+        dataLeak = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+    }
+
+    @Override
+    public void onServiceFound(NsdServiceInfo serviceInfo) {
+        NsdManager.ResolveListener resolver = new NsdManager.ResolveListener() {
+
+            @Override
+            public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
+                Log.d("leak", dataLeak);
+            }
+
+            @Override
+            public void onServiceResolved(NsdServiceInfo serviceInfo) {
+                Log.d("leak", dataLeak);
+            }
+        };
+        nsdManager.resolveService(serviceInfo, resolver);
+    }
+};
+nsdManager.discoverServices("", NsdManager.PROTOCOL_DNS_SD, listener);
+</pre>
+    </p>
+</div>
+</div>
+<a href="#demo10" class="list-group-item" data-toggle="collapse">ListViewCallbackSequential</a>
+<div id="demo10" class="panel collapse">
+    <div class="panel-body">
+        <p>
+        <h4>Description:</h4> A ListView is instantiated with an onItemClickListener() whose onItemClick() callback will be called when an element in the ListView is selected. The callback first captures the element selected, casting it to the appropriate “Example” class, and then calls two functions within the class. The first function, “foo()” saves the source of a data leak to a private variable, and the second, “bar()”, leaks it.
+        </p>
+    <p>
+    <h4>Code Example:</h4>
+    <pre class="prettyprint linenums:1">     
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    ArrayList&lt;Example/&gt; examples = new ArrayList&lt;Example/&gt;();
+    examples.add(new Example());
+    ListView serviceTable = (ListView) findViewById(R.id.listview);
+    serviceTable.setAdapter(new ArrayAdapter&lt;Example/&gt;(this,
+            android.R.layout.simple_list_item_1, examples));
+    serviceTable.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView&lt;?/&gt; parent, View view, int position, long id) {
+            Example example = (Example) parent.getItemAtPosition(position);
+            example.foo();
+            example.bar();
+        }
+    });
+}
+
+private class Example {
+    String dataLeAk;
+
+    public void foo() {
+        dataLeAk = Calendar.getInstance().getTimeZone().getDisplayName();
+    }
+    public void bar() {
+        Log.d("leak", dataLeAk);
+    }
+}
+</pre>
+    </p>
+</div>
+</div>
+<a href="#demo11" class="list-group-item" data-toggle="collapse">ThreadTaint</a>
+<div id="demo11" class="panel collapse">
+    <div class="panel-body">
+        <p>
+        <h4>Description:</h4> A data leak source is saved to a variable within some method, and a Runnable containing a sink for the variable within its run() method is submitted to a Thread. It is important to note that the Thread is first saved to a variable before Thread.start() is called, as opposed to “new Thread(…).start()”.
+        </p>
+    <p>
+    <h4>Code Example:</h4>
+    <pre class="prettyprint linenums:1">     
+final String dataLeak = Calendar.getInstance().getTimeZone().getDisplayName();
+Thread thread = new Thread(new Runnable() {
+    @Override
+    public void run() {
+        Log.d("leak-1", dataLeak);
+    }
+});
+thread.start();
+</pre>
+    </p>
+</div>
+</div>
+<a href="#demo12" class="list-group-item" data-toggle="collapse">Fragments</a>
+<div id="demo12" class="panel collapse">
+    <div class="panel-body">
+        <p>
+        <h4>Description:</h4> A Fragment from the Android Support Library contains a simple data leak within its onCreateView() lifecycle callback. This callback is called when the Fragment is instantiated using the FragmentManager transaction mechanism. 
+        </p>
+    <p>
+    <h4>Code Example:</h4>
+    <pre class="prettyprint linenums:1">     
+public class LeakyFragment extends Fragment {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        String dataLeak = Calendar.getInstance().getTimeZone().getDisplayName();
+        Log.d("leak-1", dataLeak);
+        return inflater.inflate(R.layout.fragment_leaky, container, false);
+    }
+}
+
+public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Fragment test = new LeakyFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, test).commit();
+    }
+}
+</pre>
+    </p>
+</div>
+</div>
+<a href="#demo13" class="list-group-item" data-toggle="collapse">SQLiteOpenHelper</a>
+<div id="demo13" class="panel collapse">
+    <div class="panel-body">
+        <p>
+        <h4>Description:</h4> A class extending the SQLiteOpenHelper abstract class contains a simple data leak within its onCreate() callback. This callback is called when the referenced database is created for the first time.
+        </p>
+    <p>
+    <h4>Code Example:</h4>
+    <pre class="prettyprint linenums:1">     
+public class MySQLiteHelper extends SQLiteOpenHelper {
+    public MySQLiteHelper(Context context) {
+        super(context, "example", null, 1);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String dataLeak = Calendar.getInstance().getTimeZone().getDisplayName();
+        Log.d("leak-1”, dataLeak);
+    }
+}
+</pre>
+    </p>
+</div>
+</div>
+</div>
+</div>
+
+</main>
+<hr>
+<main class="container" role="main" id="mutation-operators">
+            <p>&nbsp</p>
+            <h2 align="center">Mutation Operators</h2>
+            <p>Here we provide descriptions of the security mutation operator and mutation schemes implemented within μSE. Please, click on a mutation operator or scheme for more details.</p>
+
+    <div class="panel panel-default">
+<div class="panel-heading">
+<h4 class="panel-title">Mutation Operator</h4>
+</div>
+<div class="panel-body">
+<a href="#demo14" class="list-group-item" data-toggle="collapse">DataLeakOperator<span class="badge alert-success">AST</span></a>
+<div id="demo14" class="panel collapse">
+<div class="panel-body">
+<p>
+<h4>Description:</h4> Injects data leak variable declarations, sources, and sinks at locations marked by a given mutation scheme. For example, the simple data leak used in our experiments used this replacement strategy:
+<ul>
+  <li>Declaration: String dataLeak{{ SOURCE_NUMBER }};</li>
+  <li>Source: datLeak{{ SOURCE_NUMBER }} = java.util.Calendar.getInstance().getTimeZone().getDisplayName();</li>
+  <li>Sink: android.util.Log.d(“leak-{{ SINK_NUMBER }}”, dataLeak{{ SOURCE_NUMBER }});</li>
+</ul>
+</p>
+<p>
+<h4>Detection Technique:</h4> <span class="label alert-success">AST</span>
+</p>
+<p>
+<h4>Code Example:</h4>
+<h5>Before</h5><pre class="prettyprint linenums:5"> 
+void foo() {
+  // Declaration Mark 0
+  // Source Mark 0
+  // Sink Mark 0-0
+}
+</pre>
+<h5>After</h5><pre class="prettyprint linenums:5"> 
+void foo() {
+  String dataLeak0;
+  dataLeak0 = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+  android.util.Log.d(“leak-0-0”, dataLeak0);
+}
+</pre>
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="panel panel-default">
+<div class="panel-heading">
+<h4 class="panel-title">Mutation Schemes</h4>
+</div>
+<div class="panel-body">
+<a href="#demo15" class="list-group-item" data-toggle="collapse">SingleMethodScheme<span class="badge alert-success">AST</span></a>
+<div id="demo15" class="panel collapse">
+<div class="panel-body">
+<p>
+<h4>Description:</h4> Marks every method with a declaration, source, and sink location consecutively. 
+</p>
+<p>
+<h4>Detection Technique:</h4> <span class="label alert-success">AST</span>
+</p>
+<p>
+<h4>Code Example:</h4>
+<h5>Before</h5><pre class="prettyprint linenums:5"> 
+void foo() {}
+</pre>
+<h5>After</h5><pre class="prettyprint linenums:5"> 
+void foo() {
+  // Declaration Mark 0
+  // Source Mark 0
+  // Sink Mark 0-0
+}
+</pre>
+</p>
+</div>
+</div>
+<a href="#demo16" class="list-group-item" data-toggle="collapse">MultiMethodScheme<span class="badge alert-success">AST</span></a>
+<div id="demo16" class="panel collapse">
+<div class="panel-body">
+<p>
+<h4>Description:</h4> First marks sources at every method for declarations at every parent class to the method. Then, marks sinks at every method for every declaration reachable within that method.
+</p>
+<p>
+<h4>Detection Technique:</h4> <span class="label alert-success">AST</span>
+</p>
+<p>
+<h4>Code Example:</h4>
+<h5>Before</h5><pre class="prettyprint linenums:5"> 
+class Example {
+  void foo() {}
+  void bar() {}
+  class SubExample {
+    void baz() {}
+  }
+}
+</pre>
+<h5>After</h5><pre class="prettyprint linenums:5"> 
+class Example {
+  // Declaration Mark 0
+  // Declaration Mark 1
+  // Declaration Mark 3
+  void foo() {
+    // Source Mark 0
+    // Sink Mark 0-0
+    // Sink Mark 1-0
+    // Sink Mark 3-0
+  }
+
+  void bar() {
+    // Source Mark 1
+    // Sink Mark 0-1
+    // Sink Mark 1-1
+    // Sink Mark 3-1
+  }
+  
+  class SubExample {
+    // Declaration Mark 2
+    void baz() {
+      // Source Mark 2 
+      // Source Mark 3
+      // Sink Mark 0-2
+      // Sink Mark 1-2
+      // Sink Mark 2-0
+      // Sink Mark 3-2
+    }
+  }
+}
+</pre>
+</p>
+</div>
+</div>
+</div>
+</div>
+    
+
+        </main>
+<hr>
+<main class="container" role="main" id="data">
+            <p>&nbsp</p>
+            <h2 align="center">Code & Data</h2>
+            <h3 align="center">Coming Soon!</h3>
+
+        </main>
+
+
+</body>
+
+
+</html>
