@@ -548,8 +548,8 @@ class Example {
 <h4 class="panel-title">Mutation Schemes</h4>
 </div>
 <div class="panel-body">
-<a href="#demo15" class="list-group-item" data-toggle="collapse">Reachability<span class="badge alert-success">AST</span></a>
-<div id="demo15" class="panel collapse">
+<a href="#scheme_reachability" class="list-group-item" data-toggle="collapse">Reachability<span class="badge alert-success">AST</span></a>
+<div id="scheme_reachability" class="panel collapse">
 <div class="panel-body">
 <p>
 <h4>Description:</h4> Marks every method with a declaration, source, and sink location consecutively. 
@@ -572,8 +572,35 @@ void foo() {
 </p>
 </div>
 </div>
-<a href="#demo16" class="list-group-item" data-toggle="collapse">Taint-Based<span class="badge alert-success">AST</span></a>
-<div id="demo16" class="panel collapse">
+<a href="#scheme_android" class="list-group-item" data-toggle="collapse">Android<span class="badge alert-success">AST</span></a>
+<div id="scheme_android" class="panel collapse">
+<div class="panel-body">
+<p>
+<h4>Description:</h4> The Android scheme functions similarly to the reachability scheme, but only targets Android lifecycle methods, Android callbacks, intent messaging callbacks, and callbacks registered in XML layout files to reduce noise. 
+</p>
+<p>
+<h4>Detection Technique:</h4> <span class="label alert-success">AST</span>
+</p>
+<p>
+<h4>Code Example:</h4>
+<h5>Before</h5><pre class="prettyprint linenums:5">
+protected void onStop() {
+  super.onStop();
+}
+</pre>
+<h5>After</h5><pre class="prettyprint linenums:5">
+protected void onStop() {
+  super.onStop();
+  // Declaration Mark 0
+  // Source Mark 0
+  // Sink Mark 0-0
+}
+</pre>
+</p>
+</div>
+</div>
+<a href="#scheme_taint_based" class="list-group-item" data-toggle="collapse">Taint-Based<span class="badge alert-success">AST</span></a>
+<div id="scheme_taint_based" class="panel collapse">
 <div class="panel-body">
 <p>
 <h4>Description:</h4> For every method, first marks declarations at every parent class visible to the method, and corresponding sources for each declaration within the method. Then, at every method, marks sinks for every declaration mark visible to that
@@ -625,8 +652,8 @@ class Example {
 </p>
 </div>
 </div>
-<a href="#demo17" class="list-group-item" data-toggle="collapse">Complex-Path<span class="badge alert-success">AST</span></a>
-<div id="demo17" class="panel collapse">
+<a href="#scheme_complex_path" class="list-group-item" data-toggle="collapse">Complex-Path<span class="badge alert-success">AST</span></a>
+<div id="scheme_complex_path" class="panel collapse">
 <div class="panel-body">
 <p>
 <h4>Description:</h4> Enhancement to the Taint-Based mutation scheme that adds a transformation mark before every sink and hop. 
