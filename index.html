@@ -467,11 +467,13 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 <div id="demo14" class="panel collapse">
 <div class="panel-body">
 <p>
-<h4>Description:</h4> Injects data leak variable declarations, sources, and sinks at locations marked by a given mutation scheme. For example, the simple data leak used in our experiments used this replacement strategy:
+<h4>Description:</h4> Injects data leak variable declarations, sources, sinks, hops, and transformations at locations marked by a given mutation scheme. For example, the simple data leak used in our experiments used this replacement strategy:
 <ul>
-  <li>Declaration: String dataLeak{{ SOURCE_NUMBER }};</li>
-  <li>Source: datLeak{{ SOURCE_NUMBER }} = java.util.Calendar.getInstance().getTimeZone().getDisplayName();</li>
-  <li>Sink: android.util.Log.d(“leak-{{ SINK_NUMBER }}”, dataLeak{{ SOURCE_NUMBER }});</li>
+  <li>Declaration: String dataLeak{{ IDENTIFIER }};</li>
+  <li>Source: dataLeak{{ IDENTIFIER }} = java.util.Calendar.getInstance().getTimeZone().getDisplayName();</li>
+  <li>Sink: android.util.Log.d(“leak-{{ IDENTIFIER }}”, dataLeak{{ IDENTIFIER }});</li>
+  <li>Hop: dataLeak{{ IDENTIFIER }} = dataLeak{{ IDENTIFIER }};</li>
+  <li>Transformation: String temp{{ IDENTIFIER }} = dataLeak{{ IDENTIFIER }}; /* Transform temp based on a randomly selected rule that outputs an identical string */ dataLeak{{ IDENTIFIER }} = temp{{ IDENTIIFER }};</li>
 </ul>
 </p>
 <p>
@@ -479,18 +481,60 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 </p>
 <p>
 <h4>Code Example:</h4>
-<h5>Before</h5><pre class="prettyprint linenums:5"> 
-void foo() {
+<h5>Before (MIP from Complex-Path scheme with 1 hop)</h5><pre class="prettyprint linenums:5"> 
+class Example {
   // Declaration Mark 0
-  // Source Mark 0
-  // Sink Mark 0-0
+  // Declaration Mark 1
+  // Declaration Mark 0-0
+  // Declaration Mark 1-0 
+
+  void foo() {
+    // Source Mark 0
+    // Transformation Mark 1
+    // Hop Mark 1-0
+    // Transformation Mark 0-0
+    // Sink Mark 0-0-0
+    // Transformation Mark 1-0
+    // Sink Mark 1-0-0
+  }
+  
+  void bar() {
+    // Source Mark 1
+    // Transformation Mark 0
+    // Hop Mark 0-0
+    // Transformation Mark 0-0
+    // Sink Mark 0-0-1
+    // Transformation Mark 1-0
+    // Sink Mark 1-0-1
+  }
 }
 </pre>
 <h5>After</h5><pre class="prettyprint linenums:5"> 
-void foo() {
+class Example {
   String dataLeak0;
-  dataLeak0 = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
-  android.util.Log.d(“leak-0-0”, dataLeak0);
+  String dataLeak1;
+  String dataLeak0_0;
+  String dataLeak1_0;
+
+  void foo() {
+    dataLeak0 = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+    String temp1 = dataLeak1; Stringbuffer tempBuffer1 = new StringBuffer(); for (char char1 : temp1.toCharArray()) {tempBuffer1.append(char1);} temp1 = tempBuffer1.toString(); dataLeak1 = temp1;
+    dataLeak1_0 = dataLeak1;
+    String temp0_0 = dataLeak0_0; Stringbuffer tempBuffer0_0 = new StringBuffer(); for (char char0_0 : temp0_0.toCharArray()) {tempBuffer0_0.append(char0_0);} temp0_0 = tempBuffer0_0.toString(); dataLeak0_0 = temp0_0;
+    android.util.Log.d(“leak-0-0-0”, dataLeak0_0);
+    String temp1_0 = dataLeak1_0; Stringbuffer tempBuffer1_0 = new StringBuffer(); for (char char1_0 : temp1_0.toCharArray()) {tempBuffer1_0.append(char1_0);} temp1_0 = tempBuffer1_0.toString(); dataLeak1_0 = temp1_0;
+    android.util.Log.d(“leak-1-0-0”, dataLeak1_0);
+  }
+
+  void bar() {
+    dataLeak1 = java.util.Calendar.getInstance().getTimeZone().getDisplayName();
+    String temp0 = dataLeak1; Stringbuffer tempBuffer0 = new StringBuffer(); for (char char0 : temp0.toCharArray()) {tempBuffer0.append(char0);} temp0 = tempBuffer0.toString(); dataLeak0 = temp0;
+    dataLeak0_0 = dataLeak0;
+    String temp0_0 = dataLeak0_0; Stringbuffer tempBuffer0_0 = new StringBuffer(); for (char char0_0 : temp0_0.toCharArray()) {tempBuffer0_0.append(char0_0);} temp0_0 = tempBuffer0_0.toString(); dataLeak0_0 = temp0_0;
+    android.util.Log.d(“leak-0-0-1”, dataLeak0_0);
+    String temp1_0 = dataLeak1_0; Stringbuffer tempBuffer1_0 = new StringBuffer(); for (char char1_0 : temp1_0.toCharArray()) {tempBuffer1_0.append(char1_0);} temp1_0 = tempBuffer1_0.toString(); dataLeak1_0 = temp1_0;
+    android.util.Log.d(“leak-1-0-1”, dataLeak1_0);
+  }
 }
 </pre>
 </p>
@@ -504,7 +548,7 @@ void foo() {
 <h4 class="panel-title">Mutation Schemes</h4>
 </div>
 <div class="panel-body">
-<a href="#demo15" class="list-group-item" data-toggle="collapse">SingleMethodScheme<span class="badge alert-success">AST</span></a>
+<a href="#demo15" class="list-group-item" data-toggle="collapse">Reachability<span class="badge alert-success">AST</span></a>
 <div id="demo15" class="panel collapse">
 <div class="panel-body">
 <p>
@@ -528,11 +572,12 @@ void foo() {
 </p>
 </div>
 </div>
-<a href="#demo16" class="list-group-item" data-toggle="collapse">MultiMethodScheme<span class="badge alert-success">AST</span></a>
+<a href="#demo16" class="list-group-item" data-toggle="collapse">Taint-Based<span class="badge alert-success">AST</span></a>
 <div id="demo16" class="panel collapse">
 <div class="panel-body">
 <p>
-<h4>Description:</h4> First marks sources at every method for declarations at every parent class to the method. Then, marks sinks at every method for every declaration reachable within that method.
+<h4>Description:</h4> For every method, first marks declarations at every parent class visible to the method, and corresponding sources for each declaration within the method. Then, at every method, marks sinks for every declaration mark visible to that
+ method, aside from the declaration sourced by that method. Can be configured to send the variable through one or more hops before sinking the variable. When using hops, iteratively adds new variable declarations, passing the values of previously added declarations to the new ones. Only variables that have gone through the configured number of hops are sent to a sink. 
 </p>
 <p>
 <h4>Detection Technique:</h4> <span class="label alert-success">AST</span>
@@ -548,14 +593,13 @@ class Example {
   }
 }
 </pre>
-<h5>After</h5><pre class="prettyprint linenums:5"> 
+<h5>After (0 hops)</h5><pre class="prettyprint linenums:5"> 
 class Example {
   // Declaration Mark 0
   // Declaration Mark 1
   // Declaration Mark 3
   void foo() {
     // Source Mark 0
-    // Sink Mark 0-0
     // Sink Mark 1-0
     // Sink Mark 3-0
   }
@@ -563,7 +607,6 @@ class Example {
   void bar() {
     // Source Mark 1
     // Sink Mark 0-1
-    // Sink Mark 1-1
     // Sink Mark 3-1
   }
   
@@ -574,7 +617,65 @@ class Example {
       // Source Mark 3
       // Sink Mark 0-2
       // Sink Mark 1-2
-      // Sink Mark 2-0
+      // Sink Mark 3-2
+    }
+  }
+}
+</pre>
+</p>
+</div>
+</div>
+<a href="#demo16" class="list-group-item" data-toggle="collapse">Complex-Path<span class="badge alert-success">AST</span></a>
+<div id="demo16" class="panel collapse">
+<div class="panel-body">
+<p>
+<h4>Description:</h4> Enhancement to the Taint-Based mutation scheme that adds a transformation mark before every sink and hop. 
+</p>
+<p>
+<h4>Detection Technique:</h4> <span class="label alert-success">AST</span>
+</p>
+<p>
+<h4>Code Example:</h4>
+<h5>Before</h5><pre class="prettyprint linenums:5">
+class Example {
+  void foo() {}
+  void bar() {}
+  class SubExample {
+    void baz() {}
+  }
+}
+</pre>
+<h5>After</h5><pre class="prettyprint linenums:5">
+class Example {
+  // Declaration Mark 0
+  // Declaration Mark 1
+  // Declaration Mark 3
+  void foo() {
+    // Source Mark 0
+    // Transformation Mark 1
+    // Sink Mark 1-0
+    // Transformation Mark 3
+    // Sink Mark 3-0
+  }
+
+  void bar() {
+    // Source Mark 1
+    // Transformation Mark 0
+    // Sink Mark 0-1
+    // Transformation Mark 3
+    // Sink Mark 3-1
+  }
+
+  class SubExample {
+    // Declaration Mark 2
+    void baz() {
+      // Source Mark 2
+      // Source Mark 3
+      // Transformation Mark 0
+      // Sink Mark 0-2
+      // Transformation Mark 1
+      // Sink Mark 1-2
+      // Transformation Mark 3
       // Sink Mark 3-2
     }
   }
