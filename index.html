@@ -341,7 +341,7 @@ nsdManager.discoverServices("", NsdManager.PROTOCOL_DNS_SD, listener);
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    ArrayList&lt;Example/&gt; examples = new ArrayList&lt;Example/&gt;();
+    ArrayList&lt;Example&gt; examples = new ArrayList&lt;Example&gt;();
     examples.add(new Example());
     ListView serviceTable = (ListView) findViewById(R.id.listview);
     serviceTable.setAdapter(new ArrayAdapter&lt;Example/&gt;(this,
@@ -719,9 +719,12 @@ class Example {
 <main class="container" role="main" id="data">
             <p>&nbsp</p>
             <h2 align="center">Code & Data</h2>
-            <p align="center"><a href="https://github.com/rfbonett/muse">https://github.com/rfbonett/muse</a></p>
+            <p align="center"><a href="https://github.com/LordAmit/muse">Muse Code</a></p>
+            <p align="center"><a href="https://github.com/LordAmit/MuseMinimals">Muse Minimal Apks & Data</a></p>
 
         </main>
+
+This material is based upon work supported by the National Science Foundation under Grant Number NSF-1815336
 
 
 </body>
