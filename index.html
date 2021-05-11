@@ -5,6 +5,8 @@
 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="refresh" content="2;url=https://secure-platforms-lab-w-m.github.io/muse/" />
+
         <meta name="description" content="">
         <meta name="author" content="">
 
@@ -50,7 +52,7 @@
                 </ul>
             </div>
         </nav>
-        
+
         <main class="container" role="main" id="overview">
             <p>&nbsp</p>
             <h2 align="center">Discovering Flaws in Security-Focused Static Analysis Tools for Android using Systematic Mutation</h2>
@@ -75,11 +77,11 @@
                     <div id="demo1" class="panel collapse">
                         <div class="panel-body">
                             <p>
-                            <h4>Description:</h4> Android Activities have access to the Activity.runOnUiThread() method, which accepts Runnables and executes their run() method on the UI thread. This example submits a Runnable containing a simple data leak within its run() method to the runOnUiThread() method. 
+                            <h4>Description:</h4> Android Activities have access to the Activity.runOnUiThread() method, which accepts Runnables and executes their run() method on the UI thread. This example submits a Runnable containing a simple data leak within its run() method to the runOnUiThread() method.
                             </p>
                         <p>
                         <h4>Code Example:</h4>
-                        <pre class="prettyprint linenums:1"> 
+                        <pre class="prettyprint linenums:1">
     runOnUiThread(new Runnable() {
     @Override
     public void run() {
@@ -99,7 +101,7 @@
                     </p>
                 <p>
                 <h4>Code Example:</h4>
-                <pre class="prettyprint linenums:1">     
+                <pre class="prettyprint linenums:1">
     public void leakData(View view) {
     CharSequence[] items = {"item1", "item2", "item3"};
     new AlertDialog.Builder(this).setTitle("example")
@@ -115,7 +117,7 @@
             .show();
 }
 </pre>
-                <h5>Mutated Xml</h5><pre class="prettyprint linenums:1">     
+                <h5>Mutated Xml</h5><pre class="prettyprint linenums:1">
     &lt;Button
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -132,7 +134,7 @@
             </p>
         <p>
         <h4>Code Example:</h4>
-        <pre class="prettyprint linenums:1">     
+        <pre class="prettyprint linenums:1">
    @Override
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -158,11 +160,11 @@ public static class ExampleDialogFragment extends DialogFragment {
 <div id="demo4" class="panel collapse">
     <div class="panel-body">
         <p>
-        <h4>Description:</h4> An Activity implementing NavigationView.OnNavigationItemSelectedListener has an additional lifecycle callback onNavigationItemSelected() which is called when the user clicks on any item in the navigation menu. This example has a simple data leak within that lifecycle callback. 
+        <h4>Description:</h4> An Activity implementing NavigationView.OnNavigationItemSelectedListener has an additional lifecycle callback onNavigationItemSelected() which is called when the user clicks on any item in the navigation menu. This example has a simple data leak within that lifecycle callback.
         </p>
     <p>
     <h4>Code Example:</h4>
-    <pre class="prettyprint linenums:1">     
+    <pre class="prettyprint linenums:1">
   public class MainActivity extends Activity implements NavigationView.OnNavigationItemSelectedListener {
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -183,7 +185,7 @@ public static class ExampleDialogFragment extends DialogFragment {
         </p>
     <p>
     <h4>Code Example:</h4>
-    <pre class="prettyprint linenums:1">     
+    <pre class="prettyprint linenums:1">
   ExecutorService service = Executors.newSingleThreadExecutor();
 service.submit(new Runnable() {
     @Override
@@ -204,7 +206,7 @@ service.submit(new Runnable() {
         </p>
     <p>
     <h4>Code Example:</h4>
-    <pre class="prettyprint linenums:1">     
+    <pre class="prettyprint linenums:1">
   @Override
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -232,7 +234,7 @@ private class PhoneListener extends PhoneStateListener {
         </p>
     <p>
     <h4>Code Example:</h4>
-    <pre class="prettyprint linenums:1">     
+    <pre class="prettyprint linenums:1">
   BroadcastReceiver receiver = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -263,7 +265,7 @@ registerReceiver(receiver, filter);
         </p>
     <p>
     <h4>Code Example:</h4>
-    <pre class="prettyprint linenums:1">     
+    <pre class="prettyprint linenums:1">
  @Override
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -296,7 +298,7 @@ private LocationListener locationListener = new LocationListener() {
         </p>
     <p>
     <h4>Code Example:</h4>
-    <pre class="prettyprint linenums:1">     
+    <pre class="prettyprint linenums:1">
  final NsdManager nsdManager = (NsdManager)this.getSystemService(Context.NSD_SERVICE);
 NsdManager.DiscoveryListener listener = new NsdManager.DiscoveryListener() {
     String dataLeak = "";
@@ -336,7 +338,7 @@ nsdManager.discoverServices("", NsdManager.PROTOCOL_DNS_SD, listener);
         </p>
     <p>
     <h4>Code Example:</h4>
-    <pre class="prettyprint linenums:1">     
+    <pre class="prettyprint linenums:1">
 @Override
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -378,7 +380,7 @@ private class Example {
         </p>
     <p>
     <h4>Code Example:</h4>
-    <pre class="prettyprint linenums:1">     
+    <pre class="prettyprint linenums:1">
 final String dataLeak = Calendar.getInstance().getTimeZone().getDisplayName();
 Thread thread = new Thread(new Runnable() {
     @Override
@@ -395,11 +397,11 @@ thread.start();
 <div id="demo12" class="panel collapse">
     <div class="panel-body">
         <p>
-        <h4>Description:</h4> A Fragment from the Android Support Library contains a simple data leak within its onCreateView() lifecycle callback. This callback is called when the Fragment is instantiated using the FragmentManager transaction mechanism. 
+        <h4>Description:</h4> A Fragment from the Android Support Library contains a simple data leak within its onCreateView() lifecycle callback. This callback is called when the Fragment is instantiated using the FragmentManager transaction mechanism.
         </p>
     <p>
     <h4>Code Example:</h4>
-    <pre class="prettyprint linenums:1">     
+    <pre class="prettyprint linenums:1">
 public class LeakyFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -431,7 +433,7 @@ public class MainActivity extends AppCompatActivity {
         </p>
     <p>
     <h4>Code Example:</h4>
-    <pre class="prettyprint linenums:1">     
+    <pre class="prettyprint linenums:1">
 public class MySQLiteHelper extends SQLiteOpenHelper {
     public MySQLiteHelper(Context context) {
         super(context, "example", null, 1);
@@ -480,12 +482,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 </p>
 <p>
 <h4>Code Example:</h4>
-<h5>Before (MIP from Complex-Path scheme with 1 hop)</h5><pre class="prettyprint linenums:5"> 
+<h5>Before (MIP from Complex-Path scheme with 1 hop)</h5><pre class="prettyprint linenums:5">
 class Example {
   // Declaration Mark 0
   // Declaration Mark 1
   // Declaration Mark 0-0
-  // Declaration Mark 1-0 
+  // Declaration Mark 1-0
 
   void foo() {
     // Source Mark 0
@@ -496,7 +498,7 @@ class Example {
     // Transformation Mark 1-0
     // Sink Mark 1-0-0
   }
-  
+
   void bar() {
     // Source Mark 1
     // Transformation Mark 0
@@ -508,7 +510,7 @@ class Example {
   }
 }
 </pre>
-<h5>After</h5><pre class="prettyprint linenums:5"> 
+<h5>After</h5><pre class="prettyprint linenums:5">
 class Example {
   String dataLeak0;
   String dataLeak1;
@@ -551,17 +553,17 @@ class Example {
 <div id="scheme_reachability" class="panel collapse">
 <div class="panel-body">
 <p>
-<h4>Description:</h4> Marks every method with a declaration, source, and sink location consecutively. 
+<h4>Description:</h4> Marks every method with a declaration, source, and sink location consecutively.
 </p>
 <p>
 <h4>Detection Technique:</h4> <span class="label alert-success">AST</span>
 </p>
 <p>
 <h4>Code Example:</h4>
-<h5>Before</h5><pre class="prettyprint linenums:5"> 
+<h5>Before</h5><pre class="prettyprint linenums:5">
 void foo() {}
 </pre>
-<h5>After</h5><pre class="prettyprint linenums:5"> 
+<h5>After</h5><pre class="prettyprint linenums:5">
 void foo() {
   // Declaration Mark 0
   // Source Mark 0
@@ -575,7 +577,7 @@ void foo() {
 <div id="scheme_android" class="panel collapse">
 <div class="panel-body">
 <p>
-<h4>Description:</h4> The Android scheme functions similarly to the reachability scheme, but only targets Android lifecycle methods, Android callbacks, intent messaging callbacks, and callbacks registered in XML layout files to reduce noise. 
+<h4>Description:</h4> The Android scheme functions similarly to the reachability scheme, but only targets Android lifecycle methods, Android callbacks, intent messaging callbacks, and callbacks registered in XML layout files to reduce noise.
 </p>
 <p>
 <h4>Detection Technique:</h4> <span class="label alert-success">AST</span>
@@ -603,14 +605,14 @@ protected void onStop() {
 <div class="panel-body">
 <p>
 <h4>Description:</h4> For every method, first marks declarations at every parent class visible to the method, and corresponding sources for each declaration within the method. Then, at every method, marks sinks for every declaration mark visible to that
- method, aside from the declaration sourced by that method. Can be configured to send the variable through one or more hops before sinking the variable. When using hops, iteratively adds new variable declarations, passing the values of previously added declarations to the new ones. Only variables that have gone through the configured number of hops are sent to a sink. 
+ method, aside from the declaration sourced by that method. Can be configured to send the variable through one or more hops before sinking the variable. When using hops, iteratively adds new variable declarations, passing the values of previously added declarations to the new ones. Only variables that have gone through the configured number of hops are sent to a sink.
 </p>
 <p>
 <h4>Detection Technique:</h4> <span class="label alert-success">AST</span>
 </p>
 <p>
 <h4>Code Example:</h4>
-<h5>Before</h5><pre class="prettyprint linenums:5"> 
+<h5>Before</h5><pre class="prettyprint linenums:5">
 class Example {
   void foo() {}
   void bar() {}
@@ -619,7 +621,7 @@ class Example {
   }
 }
 </pre>
-<h5>After (0 hops)</h5><pre class="prettyprint linenums:5"> 
+<h5>After (0 hops)</h5><pre class="prettyprint linenums:5">
 class Example {
   // Declaration Mark 0
   // Declaration Mark 1
@@ -635,11 +637,11 @@ class Example {
     // Sink Mark 0-1
     // Sink Mark 3-1
   }
-  
+
   class SubExample {
     // Declaration Mark 2
     void baz() {
-      // Source Mark 2 
+      // Source Mark 2
       // Source Mark 3
       // Sink Mark 0-2
       // Sink Mark 1-2
@@ -655,7 +657,7 @@ class Example {
 <div id="scheme_complex_path" class="panel collapse">
 <div class="panel-body">
 <p>
-<h4>Description:</h4> Enhancement to the Taint-Based mutation scheme that adds a transformation mark before every sink and hop. 
+<h4>Description:</h4> Enhancement to the Taint-Based mutation scheme that adds a transformation mark before every sink and hop.
 </p>
 <p>
 <h4>Detection Technique:</h4> <span class="label alert-success">AST</span>
@@ -712,7 +714,7 @@ class Example {
 </div>
 </div>
 </div>
-    
+
 
         </main>
 <hr>
